@@ -5,6 +5,8 @@ require_once 'PHPUnit/Framework/TestCase.php';
 
 /**
  * Form test case.
+ * 
+ * TODO add test case for descriptions.
  */
 class FormTest extends PHPUnit_Framework_TestCase {
 	private $Form;
@@ -30,7 +32,7 @@ class FormTest extends PHPUnit_Framework_TestCase {
 		$this->Form = new FormBuilder('Test', $formFields);
 	
 		$expectedElement = new DOMDocument();
-		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td><label for="name">Name</label></td><td><textarea name="name" id="name" ></textarea></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit" /></td></tr></tbody></table></form>');
+		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td class="label"><label for="name">Name</label></td><td class="element"><textarea name="name" id="name"></textarea></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit"></td></tr></tbody></table></form>');
 		$expected = $expectedElement->saveHTML();
 	
 		$actualElement = new DOMDocument();
@@ -53,7 +55,7 @@ class FormTest extends PHPUnit_Framework_TestCase {
 		$this->Form = new FormBuilder('Test', $formFields);
 		
 		$expectedElement = new DOMDocument();
-		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td><label for="name">Name</label></td><td><input type="text" name="name" id="name" /></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit" /></td></tr></tbody></table></form>');
+		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td class="label"><label for="name">Name</label></td><td class="element"><input type="text" name="name" id="name"></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit"></td></tr></tbody></table></form>');
 		$expected = $expectedElement->saveHTML();
 		
 		$actualElement = new DOMDocument();
@@ -80,7 +82,7 @@ class FormTest extends PHPUnit_Framework_TestCase {
 		$this->Form = new FormBuilder('Test', $formFields);
 		
 		$expectedElement = new DOMDocument();
-		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td><span class="label">Software</span></td><td><span class="checkbox"><input type="checkbox" name="software[]" value="Word" id="word" /><label for="word">Word</label></span><span class="checkbox"><input type="checkbox" name="software[]" value="Powerpoint" id="powerpoint" /><label for="powerpoint">Powerpoint</label></span></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit" /></td></tr></tbody></table></form>');
+		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td class="label"><span class="label">Software</span></td><td class="element"><span class="checkbox"><input type="checkbox" name="software[]" value="Word" id="word"><label for="word">Word</label></span><span class="checkbox"><input type="checkbox" name="software[]" value="Powerpoint" id="powerpoint"><label for="powerpoint">Powerpoint</label></span></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit"></td></tr></tbody></table></form>');
 		$expected = $expectedElement->saveHTML();
 		
 		$actualElement = new DOMDocument();
@@ -107,7 +109,7 @@ class FormTest extends PHPUnit_Framework_TestCase {
 		$this->Form = new FormBuilder('Test', $formFields);
 		
 		$expectedElement = new DOMDocument();
-		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td><span class="label">Meeting</span></td><td><span class="radio"><input type="radio" name="meeting" value="attending" id="attending" /><label for="attending">Attending</label></span><span class="radio"><input type="radio" name="meeting" value="occupied" id="occupied" /><label for="occupied">Occupied</label></span></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit" /></td></tr></tbody></table></form>');
+		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td class="label"><span class="label">Meeting</span></td><td class="element"><span class="radio"><input type="radio" name="meeting" value="attending" id="attending"><label for="attending">Attending</label></span><span class="radio"><input type="radio" name="meeting" value="occupied" id="occupied"><label for="occupied">Occupied</label></span></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit"></td></tr></tbody></table></form>');
 		$expected = $expectedElement->saveHTML();
 		
 		$actualElement = new DOMDocument();
@@ -134,7 +136,7 @@ class FormTest extends PHPUnit_Framework_TestCase {
 		$this->Form = new FormBuilder('Test', $formFields);
 	
 		$expectedElement = new DOMDocument();
-		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td><label for="computer">Computer</label></td><td><select name="computer" id="computer" ><option>Mac</option><option>PC</option></select></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit" /></td></tr></tbody></table></form>');
+		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td class="label"><label for="computer">Computer</label></td><td class="element"><select name="computer" id="computer"><option>Mac</option><option>PC</option></select></td><td class="required"></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit"></td></tr></tbody></table></form>');
 		$expected = $expectedElement->saveHTML();
 	
 		$actualElement = new DOMDocument();
@@ -158,7 +160,7 @@ class FormTest extends PHPUnit_Framework_TestCase {
 		$this->Form = new FormBuilder('Test', $formFields);
 		
 		$expectedElement = new DOMDocument();
-		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td><label for="name">Name</label></td><td><input type="text" name="name" id="name" required /></td><td class="required"><strong>*</strong></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit" /></td></tr></tbody></table></form>');
+		$expectedElement->loadHTML('<form id="test" action="" method="post"><table><tbody><tr><td class="label"><label for="name">Name</label></td><td class="element"><input type="text" name="name" id="name" required></td><td class="required"><strong>*</strong></td><td class="error"></td></tr><tr><td>&nbsp;</td><td colspan="3"><input type="submit"></td></tr></tbody></table></form>');
 		$expected = $expectedElement->saveHTML();
 		
 		$actualElement = new DOMDocument();

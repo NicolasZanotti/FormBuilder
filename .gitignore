@@ -3,6 +3,7 @@ $ cat .gitignore
 # Folders #
 #########################
 lib
+build
 
 # Eclipse project files #
 #########################

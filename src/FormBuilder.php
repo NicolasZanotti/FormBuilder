@@ -2,18 +2,19 @@
 
 
 /**
- * Validates, generates ands lists form fields based on an array structure.
+ * Validates, generates ands lists form elements based on an array structure.
  * 
  * formFields structure:
  * <code>
 	'Name' => array(
  		'type' => 'textfield/textarea/checkbox/select/radio',
+ 		'description' => 'text that will be shown below the form field',
  		'required' => boolean,
  		'filters' => array (
 				array (
 						'filter' => php filter,
 						'flags' => flags for filter,
-						'function' => closure returning boolean if valid or failed,
+						'function' => closure returning true if valid,
 						'message' => 'Custom error message' 
 				)
 		),
@@ -24,22 +25,22 @@
  * @author Nicolas Zanotti
  */
 class FormBuilder {
-	private $fields;
+	private $elements;
 	private $input;
 	private $title;
 	private $hasErrors;
 	private $hasEntries;
 	
-	function __construct($title, $formFields, $userInput = array()) {
+	function __construct($title, $formElements, $userInput = array()) {
 		$this->title = $title;
 		$this->input = $userInput;
 		
 		// Add the id for use in HTML
-		foreach ($formFields as $key => $value) {
-			$formFields[$key]['id'] = $this->sluggify($key);
+		foreach ($formElements as $key => $value) {
+			$formElements[$key]['id'] = $this->sluggify($key);
 		}
 		
-		$this->fields = $formFields;
+		$this->elements = $formElements;
 	}
 
 	public function generate($action = '') {
@@ -49,18 +50,18 @@ class FormBuilder {
 			. '<tbody>'
 		);
 		
-		foreach ($this->fields as $key => $value) {
+		foreach ($this->elements as $key => $value) {
 			$output .= (
 					'<tr>'
-					. '<td>' . $this->label($key) . '</td>'
-					. '<td>' . $this->element($key) . '</td>'
+					. '<td class="label">' . $this->label($key) . '</td>'
+					. '<td class="element">' . $this->element($key) . '</td>'
 					. '<td class="required">' . $this->required($key) . '</td>'
 					. '<td class="error">' . $this->error($key) . '</td>'
 					. '</tr>'
 			);
 				
-			if (isset($this->fields[$key]['description'])) {
-				$output .= '<tr><td>&nbsp;</td><td><small>' . $this->fields[$key]['description'] .'</small></td></tr>';
+			if (isset($this->elements[$key]['description'])) {
+				$output .= '<tr><td>&nbsp;</td><td class="description" colspan="3"><small>' . $this->elements[$key]['description'] .'</small></td></tr>';
 			}
 		}
 			
@@ -82,37 +83,43 @@ class FormBuilder {
 		$this->hasEntries = false;
 		$this->hasErrors = false;
 		
-		foreach ( $this->fields as $key => $value ) {
-			if (isset($this->input[$this->id($key)])) {
-				$this->hasEntries = true;
+		foreach ( $this->elements as $key => $value ) {
+			
+			// Not set
+			if (!isset($this->input[$this->id($key)])) break;
+			
+			// Not required and empty
+			if (!isset($value['required']) && (is_string($this->input[$this->id($key)]) && strlen($this->input[$this->id($key)]) == 0)) break;
+			
+			$this->hasEntries = true;
+			
+			// No filters defined
+			if (!isset($value ['filters'])) break; 
+			
+			foreach ( $value ['filters'] as $validator ) {
+				$isValidAfterFunction = true;
+				$isValidAfterFilter = true;
 				
-				if (isset($value ['filters'])) {
-					foreach ( $value ['filters'] as $validator ) {	
-						$isValidAfterFunction = true;
-						$isValidAfterFilter = true;
-						
-						// Apply filters
-						if (isset($validator['filter'])) {
-							if (isset($validator['flags'])) {
-								$isValidAfterFilter = $this->input[$this->id($key)] = filter_var($this->input[$this->id($key)], $validator['filter'], $validator['flags']);
-							} else {
-								$isValidAfterFilter = $this->input[$this->id($key)] = filter_var($this->input[$this->id($key)], $validator['filter']);
-							}
-						}
-						
-						// Apply functions
-						if (isset($validator['function'])) {
-							$isValidAfterFunction = $validator['function']($this->input[$this->id($key)]);
-						}
-						
-						// Set error message
-						if (!$isValidAfterFunction || !$isValidAfterFilter) {
-							$this->hasErrors = true;
-						
-							if(!isset($value['error']) && isset($validator['message'])) {
-								$this->fields[$key]['error'] = $validator['message'];
-							}
-						}
+				// Apply filters
+				if (isset($validator['filter'])) {
+					if (isset($validator['flags'])) {
+						$isValidAfterFilter = $this->input[$this->id($key)] = filter_var($this->input[$this->id($key)], $validator['filter'], $validator['flags']);
+					} else {
+						$isValidAfterFilter = $this->input[$this->id($key)] = filter_var($this->input[$this->id($key)], $validator['filter']);
+					}
+				}
+				
+				// Apply functions
+				if (isset($validator['function'])) {
+					$isValidAfterFunction = $validator['function']($this->input[$this->id($key)]);
+				}
+				
+				// Set error message
+				if (!$isValidAfterFunction || !$isValidAfterFilter) {
+					$this->hasErrors = true;
+				
+					if(!isset($value['error']) && isset($validator['message'])) {
+						$this->elements[$key]['error'] = $validator['message'];
 					}
 				}
 			}
@@ -124,7 +131,7 @@ class FormBuilder {
 	public function message() {
 		$output = '<h1>' . $this->title . '</h1><dl>';
 
-		foreach ($this->fields as $key => $value) {
+		foreach ($this->elements as $key => $value) {
 			$output .= '<dt>' . $key . '</dt><dd>';
 			
 			if (is_array($this->userInput($key))) {
@@ -149,7 +156,7 @@ class FormBuilder {
 	}
 	
 	public function label($key) {
-		$value = $this->fields[$key];
+		$value = $this->elements[$key];
 		
 		// Radios and checkboxes have their own labels.
 		if ($value['type'] != 'radio' && $value['type'] != 'checkbox') {
@@ -162,7 +169,7 @@ class FormBuilder {
 	public function element($key) {
 		$output = '';
 		
-		switch ($this->fields[$key]['type']) {
+		switch ($this->elements[$key]['type']) {
 			case 'textarea':
 				$output .= '<textarea ' . $this->attribute('name', $key) . $this->attribute('id', $key) . '>' . $this->userInput($key) . '</textarea>';
 			break;
@@ -172,8 +179,8 @@ class FormBuilder {
 			break;
 			
 			case 'checkbox':
-				if (isset($this->fields[$key]['options'])) {
-					foreach ($this->fields[$key]['options'] as $optionsKey => $optionsValue) {
+				if (isset($this->elements[$key]['options'])) {
+					foreach ($this->elements[$key]['options'] as $optionsKey => $optionsValue) {
 						$slugified = $this->sluggify($optionsValue);
 						$nameAttrib = 'name="' . $this->id($key) . '[]" ';
 						$valueAttrib = 'value="' . $optionsValue . '" ';
@@ -193,8 +200,8 @@ class FormBuilder {
 			break;
 
 			case 'radio':
-				if (isset($this->fields[$key]['options'])) {
-					foreach ($this->fields[$key]['options'] as $optionsKey => $optionsValue) {
+				if (isset($this->elements[$key]['options'])) {
+					foreach ($this->elements[$key]['options'] as $optionsKey => $optionsValue) {
 						$slugified = $this->sluggify($optionsValue);
 						$nameAttrib = 'name="' . $this->id($key) . '" ';
 						$valueAttrib = 'value="' . $slugified . '" ';
@@ -209,8 +216,8 @@ class FormBuilder {
 			
 			case 'select':
 				$output .= '<select ' . $this->attribute('name', $key) . $this->attribute('id', $key) . '>';
-				if (isset($this->fields[$key]['options'])) {
-					foreach ($this->fields[$key]['options'] as $optionsKey => $optionsValue) {
+				if (isset($this->elements[$key]['options'])) {
+					foreach ($this->elements[$key]['options'] as $optionsKey => $optionsValue) {
 						$selected = $this->userInput($key) == $optionsValue ? ' selected' : '';
 						$output .= '<option' . $selected . '>' . $optionsValue . '</option>';
 					}
@@ -223,8 +230,8 @@ class FormBuilder {
 	}
 	
 	public function required($key) {
-		if (isset($this->fields[$key]['required'])) {
-			if ($this->fields[$key]['required']) {
+		if (isset($this->elements[$key]['required'])) {
+			if ($this->elements[$key]['required']) {
 				return '<strong>*</strong>';
 			}
 		}
@@ -232,8 +239,8 @@ class FormBuilder {
 	}
 	
 	public function error($key) {
-		if (isset($this->fields[$key]['error'] )) {
-			return $this->fields[$key]['error'];
+		if (isset($this->elements[$key]['error'] )) {
+			return $this->elements[$key]['error'];
 		}
 		return "";
 	}
@@ -246,7 +253,7 @@ class FormBuilder {
 	}
 	
 	public function id($key) {
-		return $this->fields[$key]['id'];
+		return $this->elements[$key]['id'];
 	}
 
 	private function attribute($type, $key) {
@@ -254,8 +261,8 @@ class FormBuilder {
 
 		switch ($type) {
 			case 'required':
-				if (isset($this->fields[$key]['required'])) {
-					if ($this->fields[$key]['required']) {
+				if (isset($this->elements[$key]['required'])) {
+					if ($this->elements[$key]['required']) {
 						$output = 'required ';
 					}
 				}
@@ -301,9 +308,7 @@ class FormBuilder {
 		$string = str_replace('\'', '', $string);
 
 		// Replace non-alpha numeric with hyphens
-		$match = '/[^a-z0-9]+/';
-		$replace = '-';
-		$string = preg_replace($match, $replace, $string);
+		$string = preg_replace('/[^a-z0-9]+/', '-', $string);
 
 		$string = trim($string, '-');
 

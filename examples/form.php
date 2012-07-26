@@ -14,7 +14,7 @@ $formFields = array (
 								'filter' => FILTER_SANITIZE_STRING,
 								'flags' => FILTER_FLAG_STRIP_HIGH,
 								'message' => 'Please enter a name.'
-						) 
+						)
 				)
 		),
 		'Email' => array (
@@ -25,28 +25,28 @@ $formFields = array (
 								'filter' => FILTER_SANITIZE_STRING,
 								'flags' => FILTER_FLAG_STRIP_HIGH,
 								'function' => $validators->containsContent,
-								'message' => 'Please enter an email address.' 
+								'message' => 'Please enter an email address.'
 						),
 						array (
 								'filter' => FILTER_VALIDATE_EMAIL,
-								'message' => 'Please enter a valid email address.' 
-						) 
-				) 
+								'message' => 'Please enter a valid email address.'
+						)
+				)
 		),
 		'Fruit' => array (
 				'type' => 'checkbox',
 				'options' => array (
 						'Banana',
 						'Orange',
-						'Apple' 
+						'Apple'
 				)
 		),
 		'Computer' => array (
 				'type' => 'select',
 				'options' => array (
 						'Mac',
-						'PC' 
-				) 
+						'PC'
+				)
 		),
 		'Comments' => array (
 				'type' => 'textarea',
@@ -61,9 +61,9 @@ $formFields = array (
 				'type' => 'radio',
 				'options' => array (
 						'Attending',
-						'Occupied' 
-				) 
-		) 
+						'Occupied'
+				)
+		)
 );
 
 $userInput = $_POST;

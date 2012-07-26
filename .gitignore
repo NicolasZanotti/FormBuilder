@@ -8,6 +8,7 @@ lib
 #########################
 .project
 .settings
+.buildpath
 
 # OS generated files #
 ######################

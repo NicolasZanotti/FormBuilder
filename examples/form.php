@@ -1,6 +1,6 @@
 <?php
 
-require_once '../src/Form.php';
+require_once '../src/FormBuilder.php';
 require_once '../src/Validators.php';
 
 $validators = new Validators();
@@ -69,7 +69,7 @@ $formFields = array (
 $userInput = $_POST;
 
 
-$form = new Form('Test', $formFields, $userInput);
+$form = new FormBuilder('Test', $formFields, $userInput);
 
 ?>
 <!DOCTYPE html>

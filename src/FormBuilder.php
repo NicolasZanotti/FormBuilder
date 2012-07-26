@@ -1,10 +1,8 @@
 <?php
 
-require_once '../lib/FirePHPCore/fb.php';
-ob_start();
 
 /**
- * Generates and validates simple a form based on an array structure.
+ * Validates, generates ands lists form fields based on an array structure.
  * 
  * formFields structure:
  * <code>
@@ -25,7 +23,7 @@ ob_start();
  * 
  * @author Nicolas Zanotti
  */
-class Form {
+class FormBuilder {
 	private $fields;
 	private $input;
 	private $title;

@@ -22,6 +22,8 @@
  	);
  	</code>
  * 
+ * FIXME: Setting required 'false' doesn't allow form to pass.
+ *
  * @author Nicolas Zanotti
  */
 class FormBuilder {
